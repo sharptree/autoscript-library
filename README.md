@@ -3,6 +3,7 @@ This repository provides a library of scripts that Sharptree has developed that 
 
 # Contents
 
-| Script    | Description                               |
-|:----------|:------------------------------------------|
-| Storage   | Store and manage JSON data.               |
+| Script          | Description                                       |
+|:----------------|:--------------------------------------------------|
+| Calendar Invite | Send iCal (Outlook) calendar invites from Maximo. |
+| Storage         | Store and manage JSON data.                       |
