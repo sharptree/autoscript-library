@@ -64,7 +64,7 @@ ExportParameters.fromJson = function (json) {
  */
 function downloadWorkbook(workbook, fileName, oslcRequest) {
 
-    if (typeof request === 'undefined' && !oslcRequest) {                
+    if (typeof request === 'undefined' && !oslcRequest) {
         throw new Error('The exportWorkbook function can only be called from a direct script invocation with the "request" implicit variable available or with the oslcRequest provided.');
     }
 
@@ -72,7 +72,7 @@ function downloadWorkbook(workbook, fileName, oslcRequest) {
         throw new Error('An Excel workbook is required to export.');
     }
 
-    var response = (typeof request === 'undefined') ? oslcRequest.getHttpServletResponse() :request.getHttpServletResponse();
+    var response = (typeof request === 'undefined') ? oslcRequest.getHttpServletResponse() : request.getHttpServletResponse();
     response.setBufferSize(0);
     response.setContentType("application/vnd.ms-excel");
     response.setHeader("content-disposition", 'attachment; filename="' + (fileName ? fileName : 'export.xlsx') + '"');
@@ -244,12 +244,38 @@ function exportMboSet(mboSet, sheetName, attributes) {
 
     var metadata = mboSet.getMboSetInfo();
 
+    var removeIndexes = [];
     for (var i = 0; i < columnCount; i++) {
-        var mvi = metadata.getMboValueInfo(attributes[i]);
-
-        columns.push(mvi.getTitle());
-        types.push(mvi.getMaxType());
+        var mvi;
+        if (attributes[i].indexOf('.') > 0) {
+            var relationship = attributes[i].substring(0, attributes[i].indexOf('.'));
+            var name = attributes[i].substring(attributes[i].indexOf('.') + 1);
+            var ri = metadata.getRelationInfo(relationship);
+            if (ri) {
+                mvi = MXServer.getMXServer().getMaximoDD().getMboSetInfo(ri.getDest()).getMboValueInfo(name);
+            }
+        } else {
+            mvi = metadata.getMboValueInfo(attributes[i]);
+        }
+        if (mvi) {
+            if (mvi.getObjectName() != mboSet.getName()){
+                var prefix  = mvi.getObjectName().substring(0, 1).toUpperCase() + mvi.getObjectName().substring(1).toLowerCase();
+                columns.push(prefix + ' ' + mvi.getTitle());
+            }else{
+                columns.push(mvi.getTitle());
+            }
+            types.push(mvi.getMaxType());
+        } else {
+            removeIndexes.push(i);
+        }
     }
+
+    attributes = attributes.filter(function (value, index, arr) {
+        return removeIndexes.indexOf(index) < 0;
+    });
+
+
+    var columnCount = columns.length;
 
     var workbook = new XSSFWorkbook();
 
