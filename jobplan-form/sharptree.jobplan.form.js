@@ -165,6 +165,8 @@ function createFormFromJobPlan(jobPlan) {
             inspectionForm = sourceInspectionForm.initRevision();
         }
 
+        var inspectionFormNumber = inspectionForm.getString("INSPFORMNUM");
+
         inspectionForm.setValue("TYPE", "Inspection");
         inspectionForm.setValue("DESCRIPTION_LONGDESCRIPTION", jobPlan.getString("DESCRIPTION_LONGDESCRIPTION"));
 
@@ -236,10 +238,10 @@ function createFormFromJobPlan(jobPlan) {
                 inspectionFormSet.save();
             } else {
                 inspectionFormSet.save();
-            }
-
-            return inspectionFormSet.getMbo(0).getString("INSPFORMNUM");
+            }            
         }
+
+        return inspectionFormNumber;
     } finally {
         _close(inspectionFormSet);
     }
