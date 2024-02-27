@@ -181,7 +181,6 @@ function identifyUpdateConflict(thisMbo, updatedMboSets, result) {
                             "parent": relationshipInfo ? relationshipInfo.getSrc() : mbo.getOwner().getName(),
                             "child": relationshipInfo ? relationshipInfo.getDest() : mboSet.getName(),
                             "modifiedAttributes": modifiedAttributes,
-                            "stacktrace": stackTrace
                         }
 
                         if (updatedMboSets.containsKey(mboName)) {
