@@ -71,7 +71,7 @@ function main(){
         personSet = MXServer.getMXServer().getMboSet('PERSON', userInfo);
 
         // Call "exportSet" to export the MboSet to a workbook, then call "exportWorkbook" to download the workbook.
-        exportWorkbook(exportSet(personSet, {
+        downloadWorkbook(exportSet(personSet, {
             'sheetName': 'People',
             'attributes': [
                 'personid',
@@ -127,7 +127,7 @@ function main(){
             'autosize': true,}),
             'person.xlsx');
 
-        exportWorkbook(exportSet(personSet, {
+        downloadWorkbook(exportSet(personSet, {
             'sheetName': 'People',
             'autosize': true,
         }), 'person.xlsx');
@@ -146,3 +146,7 @@ var scriptConfig = {
 };
 
 ```
+
+## Export Inspection Results
+Using the VS Code Maximo Development Tools extension found here: [marketplace.visualstudio.com/items?itemName=sharptree.maximo-script-deploy](marketplace.visualstudio.com/items?itemName=sharptree.maximo-script-deploy)
+ the `workorder.export.inspresult.js` script can be deployed and the companion `workorder.export.inspresult.deploy.js` script will automatically create the required Maximo Launch in Context configuration to enable exporting Work Order Tracking inspection results from the List or a single work order record.
