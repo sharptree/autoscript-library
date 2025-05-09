@@ -62,7 +62,9 @@ function main() {
     response.setHeader("content-disposition", 'attachment; filename="manage-' + version + '.zip"');
 
     // create a zip output stream to write the zip file to the response output stream
-    var zos = new ZipOutputStream(response.getOutputStream());
+    var tempFile = File.createTempFile("tmpZip", ".zip"); // "" for suffix, null for default dir
+
+    var zos = new ZipOutputStream(new FileOutputStream(tempFile));
 
     // collect the files to be zipped
     var files = [];
@@ -77,7 +79,6 @@ function main() {
     zos.flush();
 
     // Clean up temporary files that might have been created during the process
-    var tmpPath = Java.type("java.lang.System").getProperty("java.io.tmpdir");
     files.forEach(function (filePath) {
         if (filePath.path.startsWith(tmpPath)) {
             var file = new File(filePath.path);
@@ -89,7 +90,6 @@ function main() {
                     return FileVisitResult.CONTINUE;
                 },
                 postVisitDirectory: function (dir, exc) {
-                    Java.type("java.lang.System").out.println("Deleting file: " + dir.toString());
                     Files.delete(dir);
                     return FileVisitResult.CONTINUE;
                 }
@@ -102,6 +102,21 @@ function main() {
         }
     });
 
+    var input = new FileInputStream(tempFile);
+    var output = response.getOutputStream();
+
+    // Create a buffer to read data in chunks
+    var buffer = new ByteArrayType(1024);
+    var bytesRead;
+
+    // Read from the input stream and write to the output stream
+    while ((bytesRead = input.read(buffer)) != -1) {
+        output.write(buffer, 0, bytesRead);
+    }
+
+    input.close();
+    tempFile.delete();
+
     // flush the HttpServletResponse to ensure lock the headers, including the content type so Maximo doesn't force it back to json.
     response.flushBuffer();
 }
@@ -113,7 +128,9 @@ function main() {
  */
 function zipFiles(zos, files) {
     // iterate over the files and add them to the zip output stream
-    files.forEach(function (filePath) {
+    for (var i = 0; i < files.length; i++) {
+        filePath = files[i];
+
         // check if the file exists and is not a directory
         var file = new File(filePath.path);
         if (file.exists() && !file.isDirectory()) {
@@ -135,7 +152,7 @@ function zipFiles(zos, files) {
             // close the ZipEntry
             zos.closeEntry();
         }
-    });
+    }
     // finish the zip output stream to ensure all data is written
     zos.finish();
 }
